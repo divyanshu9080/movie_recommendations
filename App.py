@@ -17,7 +17,7 @@ hdr = {'User-Agent': 'Mozilla/5.0'}
 def movie_poster_fetcher(imdb_link):
     url_data = requests.get(imdb_link, headers=hdr).text
     s_data = BeautifulSoup(url_data, 'html.parser')
-    imdb_dp = s_data.find("meta", property="og:image1")
+    imdb_dp = s_data.find("meta", property="og:image")
     if imdb_dp:
         movie_poster_link = imdb_dp.attrs.get('content', '')
         if movie_poster_link:
@@ -34,19 +34,33 @@ def movie_poster_fetcher(imdb_link):
 def get_movie_info(imdb_link):
     url_data = requests.get(imdb_link, headers=hdr).text
     s_data = BeautifulSoup(url_data, 'html.parser')
-    imdb_content = s_data.find("meta", property="og:description")
+    imdb_content = s_data.find("meta", property="og:title")
     if imdb_content:
-        movie_descr = imdb_content.attrs.get('content', '').split('.')
-        if len(movie_descr) >= 3:
-            movie_director = movie_descr[0]
-            movie_cast = str(movie_descr[1]).replace('With', 'Cast: ').strip()
-            movie_story = 'Story: ' + str(movie_descr[2]).strip() + '.'
-            rating = s_data.find("span", class_="sc-bde20123-1 iZlgcd").text
-            movie_rating = 'Total Rating count: ' + str(rating)
-            return movie_director, movie_cast, movie_story, movie_rating
-    # Return default values if data extraction fails
-    return "Director not available", "Cast not available", "Story not available", "Rating not available"
+        # movie_descr = imdb_content.attrs.get('content', '').split('.')
+        # if len(movie_descr) >= 3:
+        #     movie_director = movie_descr[0]
+        #     movie_cast = str(movie_descr[1]).replace('With', 'Cast: ').strip()
+        #     movie_story = 'Story: ' + str(movie_descr[2]).strip() + '.'
+#             html_snippet = '<a class="ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link" role="button" tabindex="0" aria-disabled="false" href="/name/nm0339030/?ref_=tt_ov_dr">Paul Greengrass</a>'
 
+# # Create a BeautifulSoup object
+#     s_data = BeautifulSoup(html_snippet, 'html.parser')
+
+# Find the anchor tag
+        director_anchor = s_data.find("a", class_="ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link")
+        # writer_anchor=s_data.find("a",class_="ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link")
+# Extract the director's name
+    director_name = 'Director name: ' + director_anchor.get_text()
+    # writer_name=writer_anchor.get_text()
+
+    rating = s_data.find("span", class_="sc-bde20123-1 iZlgcd").text
+    movie_rating = 'Total Rating count: ' + str(rating)
+    # return director_name, movie_rating
+    # Return default values if data extraction fails
+    # return "Director not available", "Cast not available", "Story not available", "Rating not available"
+#  movie_cast, movie_story,
+    return director_name, movie_rating
+    
 
 
 def KNN_Movie_Recommender(test_point, k):
@@ -106,13 +120,17 @@ def run():
                 st.success('Some of the movies from our Recommendation, have a look below')
                 for movie, link, ratings in table:
                     c += 1
-                    director, cast, story, total_rat = get_movie_info(link)
+                    
                     st.markdown(f"({c})[ {movie}]({link})")
-                    st.markdown(director)
-                    st.markdown(cast)
-                    st.markdown(story)
-                    st.markdown(total_rat)
-                    st.markdown('IMDB Rating: ' + str(ratings) + '⭐')
+                    director_name= get_movie_info(link)
+                    movie_rating= get_movie_info(link)
+                    # writer_name= get_movie_info(link)
+                    st.markdown(director_name)
+                    st.markdown(movie_rating)
+                    # st.markdown(cast)
+                    # st.markdown(story)
+                    # st.markdown(total_rat)
+                    # st.markdown('IMDB Rating: ' + str(ratings) + '⭐')
         else:
             if select_movie == '--Select--':
                 st.warning('Please select Movie!!')
@@ -128,12 +146,12 @@ def run():
                     c += 1
                     st.markdown(f"({c})[ {movie}]({link})")
                     movie_poster_fetcher(link)
-                    director, cast, story, total_rat = get_movie_info(link)
-                    st.markdown(director)
-                    st.markdown(cast)
-                    st.markdown(story)
-                    st.markdown(total_rat)
-                    st.markdown('IMDB Rating: ' + str(ratings) + '⭐')
+                    director_name= get_movie_info(link)
+                    
+                    movie_rating= get_movie_info(link)
+                    # writer_name= get_movie_info(link)
+                    st.markdown(director_name)
+                    st.markdown(movie_rating)
     elif cat_op == category[2]:
         sel_gen = st.multiselect('Select Genres:', genres)
         dec = st.radio("Want to Fetch Movie Poster?", ('Yes', 'No'))
@@ -152,12 +170,12 @@ def run():
                 for movie, link, ratings in table:
                     c += 1
                     st.markdown(f"({c})[ {movie}]({link})")
-                    director, cast, story, total_rat = get_movie_info(link)
-                    st.markdown(director)
-                    st.markdown(cast)
-                    st.markdown(story)
-                    st.markdown(total_rat)
-                    st.markdown('IMDB Rating: ' + str(ratings) + '⭐')
+                    director_name, movie_rating= get_movie_info(link)
+                    
+                    
+                    # writer_name= get_movie_info(link)
+                    st.markdown(director_name)
+                    st.markdown(movie_rating)
         else:
             if sel_gen:
                 imdb_score = st.slider('Choose IMDb score:', 1, 10, 8)
@@ -171,12 +189,12 @@ def run():
                     c += 1
                     st.markdown(f"({c})[ {movie}]({link})")
                     movie_poster_fetcher(link)
-                    director, cast, story, total_rat = get_movie_info(link)
-                    st.markdown(director)
-                    st.markdown(cast)
-                    st.markdown(story)
-                    st.markdown(total_rat)
-                    st.markdown('IMDB Rating: ' + str(ratings) + '⭐')
+                    director_name, movie_rating= get_movie_info(link)
+                    
+                    
+                    # writer_name= get_movie_info(link)
+                    st.markdown(director_name)
+                    st.markdown(movie_rating)
 
 
 run()
