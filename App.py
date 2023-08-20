@@ -50,16 +50,19 @@ def get_movie_info(imdb_link):
         director_anchor = s_data.find("a", class_="ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link")
         # writer_anchor=s_data.find("a",class_="ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link")
 # Extract the director's name
-    director_name = 'Director name: ' + director_anchor.get_text()
+        director_name = 'Director name: ' + director_anchor.get_text()
     # writer_name=writer_anchor.get_text()
 
-    rating = s_data.find("span", class_="sc-bde20123-1 iZlgcd").text
-    movie_rating = 'Total Rating count: ' + str(rating)
+        rating = s_data.find("span", class_="sc-bde20123-1 iZlgcd").text
+        movie_rating = 'Total Rating count: ' + str(rating)
     # return director_name, movie_rating
     # Return default values if data extraction fails
     # return "Director not available", "Cast not available", "Story not available", "Rating not available"
 #  movie_cast, movie_story,
-    return director_name, movie_rating
+        return director_name, movie_rating
+    else:
+        return "Director not available", "Rating not available"
+
     
 
 
@@ -122,8 +125,8 @@ def run():
                     c += 1
                     
                     st.markdown(f"({c})[ {movie}]({link})")
-                    director_name= get_movie_info(link)
-                    movie_rating= get_movie_info(link)
+                    director_name,movie_rating= get_movie_info(link)
+                    
                     # writer_name= get_movie_info(link)
                     st.markdown(director_name)
                     st.markdown(movie_rating)
@@ -146,9 +149,9 @@ def run():
                     c += 1
                     st.markdown(f"({c})[ {movie}]({link})")
                     movie_poster_fetcher(link)
-                    director_name= get_movie_info(link)
+                    director_name,movie_rating= get_movie_info(link)
                     
-                    movie_rating= get_movie_info(link)
+                    
                     # writer_name= get_movie_info(link)
                     st.markdown(director_name)
                     st.markdown(movie_rating)
